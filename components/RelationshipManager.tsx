@@ -1,12 +1,12 @@
 "use client";
 
+import { DashboardContext, useDashboard } from "@/components/DashboardContext";
 import { Person, RelationshipType } from "@/types";
 import { formatDisplayDate } from "@/utils/dateHelpers";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useContext, useEffect, useState } from "react";
 import DefaultAvatar from "./DefaultAvatar";
 
 interface RelationshipManagerProps {
@@ -29,8 +29,18 @@ export default function RelationshipManager({
   personGender,
 }: RelationshipManagerProps) {
   const supabase = createClient();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
+  const dashboardContext = useContext(DashboardContext);
+  const { setMemberModalId } = useDashboard();
+  const router = useRouter();
+
+  // If inside DashboardProvider → open modal; otherwise → navigate to full page
+  const handlePersonClick = (id: string) => {
+    if (dashboardContext !== undefined) {
+      setMemberModalId(id);
+    } else {
+      router.push(`/dashboard/members/${id}`);
+    }
+  };
 
   const [relationships, setRelationships] = useState<EnrichedRelationship[]>(
     [],
@@ -469,52 +479,43 @@ export default function RelationshipManager({
                     key={rel.id}
                     className="flex items-center justify-between group"
                   >
-                    {(() => {
-                      const newParams = new URLSearchParams(
-                        searchParams.toString(),
-                      );
-                      newParams.set("memberModalId", rel.targetPerson.id);
-                      return (
-                        <Link
-                          href={`${pathname}?${newParams.toString()}`}
-                          scroll={false}
-                          className="flex items-center gap-3 hover:bg-stone-100 p-2.5 -mx-2.5 rounded-xl transition-all duration-200 flex-1"
-                        >
-                          <div
-                            className={`h-8 w-8 rounded-full flex items-center justify-center text-xs text-white overflow-hidden
+                    <button
+                      onClick={() => handlePersonClick(rel.targetPerson.id)}
+                      className="flex items-center gap-3 hover:bg-stone-100 p-2.5 -mx-2.5 rounded-xl transition-all duration-200 flex-1 text-left cursor-pointer"
+                    >
+                      <div
+                        className={`h-8 w-8 rounded-full flex items-center justify-center text-xs text-white overflow-hidden
                             ${rel.targetPerson.gender === "male" ? "bg-sky-700" : rel.targetPerson.gender === "female" ? "bg-rose-700" : "bg-stone-500"}`}
-                          >
-                            {rel.targetPerson.avatar_url ? (
-                              <Image
-                                unoptimized
-                                src={rel.targetPerson.avatar_url}
-                                alt={rel.targetPerson.full_name}
-                                className="h-full w-full object-cover"
-                                width={32}
-                                height={32}
-                              />
-                            ) : (
-                              <DefaultAvatar gender={rel.targetPerson.gender} />
-                            )}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-stone-900 font-medium text-sm">
-                              {rel.targetPerson.full_name}
-                            </span>
-                            {rel.note && (
-                              <span className="text-xs text-amber-600 font-medium italic mt-0.5">
-                                ({rel.note})
-                              </span>
-                            )}
-                            {rel.type === "adopted_child" && (
-                              <span className="text-xs text-stone-400 italic mt-0.5">
-                                (Con nuôi)
-                              </span>
-                            )}
-                          </div>
-                        </Link>
-                      );
-                    })()}
+                      >
+                        {rel.targetPerson.avatar_url ? (
+                          <Image
+                            unoptimized
+                            src={rel.targetPerson.avatar_url}
+                            alt={rel.targetPerson.full_name}
+                            className="h-full w-full object-cover"
+                            width={32}
+                            height={32}
+                          />
+                        ) : (
+                          <DefaultAvatar gender={rel.targetPerson.gender} />
+                        )}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-stone-900 font-medium text-sm">
+                          {rel.targetPerson.full_name}
+                        </span>
+                        {rel.note && (
+                          <span className="text-xs text-amber-600 font-medium italic mt-0.5">
+                            ({rel.note})
+                          </span>
+                        )}
+                        {rel.type === "adopted_child" && (
+                          <span className="text-xs text-stone-400 italic mt-0.5">
+                            (Con nuôi)
+                          </span>
+                        )}
+                      </div>
+                    </button>
                     {isAdmin && rel.direction !== "child_in_law" && (
                       <button
                         onClick={() => handleDelete(rel.id)}

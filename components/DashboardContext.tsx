@@ -15,7 +15,9 @@ interface DashboardState {
   setRootId: (id: string | null) => void;
 }
 
-const DashboardContext = createContext<DashboardState | undefined>(undefined);
+export const DashboardContext = createContext<DashboardState | undefined>(
+  undefined,
+);
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
@@ -116,10 +118,21 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useDashboard() {
+export function useDashboard(): DashboardState {
   const context = useContext(DashboardContext);
+  // Return a safe no-op fallback when used outside DashboardProvider
+  // (e.g., on the /dashboard/members/[id] standalone page)
   if (context === undefined) {
-    throw new Error("useDashboard must be used within a DashboardProvider");
+    return {
+      memberModalId: null,
+      setMemberModalId: () => {},
+      showAvatar: true,
+      setShowAvatar: () => {},
+      view: "list",
+      setView: () => {},
+      rootId: null,
+      setRootId: () => {},
+    };
   }
   return context;
 }

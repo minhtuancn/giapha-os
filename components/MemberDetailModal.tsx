@@ -3,6 +3,8 @@
 import MemberDetailContent from "@/components/MemberDetailContent";
 import { Person } from "@/types";
 import { createClient } from "@/utils/supabase/client";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, Edit2, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -118,96 +120,82 @@ export default function MemberDetailModal() {
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      {/* Click-away backdrop */}
-      <div
-        className="absolute inset-0 cursor-pointer"
-        onClick={closeModal}
-      ></div>
-
-      {/* Modal Content */}
-      <div className="relative bg-stone-50 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-        {/* Sticky Header Actions */}
-        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
-          {isAdmin && person && (
-            <Link
-              href={`/dashboard/members/${person.id}/edit`}
-              className="px-3 py-1.5 bg-amber-50/90 backdrop-blur-md text-amber-700 rounded-lg hover:bg-amber-100 font-semibold text-xs shadow-sm border border-amber-200/50 transition-colors"
-              onClick={closeModal}
-            >
-              Chỉnh sửa
-            </Link>
-          )}
-          <button
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 bg-stone-900/40 backdrop-blur-sm"
+        >
+          {/* Click-away backdrop */}
+          <div
+            className="absolute inset-0 cursor-pointer"
             onClick={closeModal}
-            className="w-8 h-8 flex items-center justify-center bg-white/90 backdrop-blur-md text-stone-500 rounded-full hover:bg-stone-100 hover:text-stone-900 shadow-sm border border-stone-200/50 transition-colors cursor-pointer"
-            aria-label="Đóng"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        </div>
+          ></div>
 
-        {loading ? (
-          <div className="flex-1 min-h-[400px] flex items-center justify-center flex-col gap-3">
-            <div className="w-8 h-8 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-stone-500 font-medium">Đang tải...</p>
-          </div>
-        ) : error ? (
-          <div className="flex-1 min-h-[400px] flex items-center justify-center flex-col gap-4 p-8 text-center">
-            <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          {/* Modal Content */}
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+            className="relative bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-stone-200"
+          >
+            {/* Sticky Header Actions */}
+            <div className="absolute top-4 right-4 sm:top-5 sm:right-5 z-20 flex items-center gap-2">
+              {isAdmin && person && (
+                <Link
+                  href={`/dashboard/members/${person.id}/edit`}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-amber-100/80 backdrop-blur-md text-amber-800 rounded-full hover:bg-amber-200 font-semibold text-sm shadow-sm border border-amber-200/50 transition-colors"
+                  onClick={closeModal}
+                >
+                  <Edit2 className="w-4 h-4" />
+                  <span className="hidden sm:inline">Chỉnh sửa</span>
+                </Link>
+              )}
+              <button
+                onClick={closeModal}
+                className="w-10 h-10 flex items-center justify-center bg-stone-100/80 backdrop-blur-md text-stone-600 rounded-full hover:bg-stone-200 hover:text-stone-900 shadow-sm border border-stone-200/50 transition-colors cursor-pointer"
+                aria-label="Đóng"
               >
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-              </svg>
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            <p className="text-red-600 font-medium text-lg">{error}</p>
-            <button
-              onClick={closeModal}
-              className="px-4 py-2 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-lg transition-colors"
-            >
-              Đóng
-            </button>
-          </div>
-        ) : person ? (
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
-            <MemberDetailContent
-              person={person}
-              privateData={privateData}
-              isAdmin={isAdmin}
-              onLinkClick={closeModal}
-            />
-          </div>
-        ) : null}
-      </div>
-    </div>
+
+            {loading ? (
+              <div className="flex-1 min-h-[400px] flex items-center justify-center flex-col gap-4">
+                <div className="w-10 h-10 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-stone-500 font-medium">Đang tải...</p>
+              </div>
+            ) : error ? (
+              <div className="flex-1 min-h-[400px] flex items-center justify-center flex-col gap-4 p-8 text-center">
+                <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-2 shadow-inner">
+                  <AlertCircle className="w-8 h-8" />
+                </div>
+                <p className="text-red-600 font-medium text-lg">{error}</p>
+                <button
+                  onClick={closeModal}
+                  className="mt-2 px-6 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold rounded-full transition-colors cursor-pointer"
+                >
+                  Đóng
+                </button>
+              </div>
+            ) : person ? (
+              <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <MemberDetailContent
+                  person={person}
+                  privateData={privateData}
+                  isAdmin={isAdmin}
+                  onLinkClick={closeModal}
+                />
+              </div>
+            ) : null}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

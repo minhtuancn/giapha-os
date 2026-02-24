@@ -2,6 +2,19 @@
 
 import { Gender, Person } from "@/types";
 import { createClient } from "@/utils/supabase/client";
+import { AnimatePresence, motion, Variants } from "framer-motion";
+import {
+  AlertCircle,
+  Briefcase,
+  Image as ImageIcon,
+  Loader2,
+  Lock,
+  MapPin,
+  Phone,
+  Settings2,
+  Trash2,
+  User,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -72,6 +85,47 @@ export default function MemberForm({
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Validation
+    const isValidDate = (
+      day: number | "",
+      month: number | "",
+      year: number | "",
+    ) => {
+      if (day !== "" && (day < 1 || day > 31)) return false;
+      if (month !== "" && (month < 1 || month > 12)) return false;
+      if (year !== "" && year < 1) return false;
+
+      if (day !== "" && month !== "") {
+        const currentYear = year !== "" ? year : 2000;
+        const daysInMonth = new Date(currentYear, month, 0).getDate();
+        if (day > daysInMonth) return false;
+      }
+      return true;
+    };
+
+    if (!isValidDate(birthDay, birthMonth, birthYear)) {
+      setError("Ngày sinh không hợp lệ. Vui lòng kiểm tra lại.");
+      setLoading(false);
+      return;
+    }
+
+    if (isDeceased && !isValidDate(deathDay, deathMonth, deathYear)) {
+      setError("Ngày mất không hợp lệ. Vui lòng kiểm tra lại.");
+      setLoading(false);
+      return;
+    }
+
+    if (
+      isDeceased &&
+      birthYear !== "" &&
+      deathYear !== "" &&
+      deathYear < birthYear
+    ) {
+      setError("Năm mất phải lớn hơn hoặc bằng năm sinh.");
+      setLoading(false);
+      return;
+    }
 
     try {
       let finalAvatarUrl = avatarUrl;
@@ -157,53 +211,109 @@ export default function MemberForm({
     }
   };
 
+  const formSectionVariants: Variants = {
+    hidden: { opacity: 0, y: 10 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 300, damping: 24 },
+    },
+  };
+
+  const inputClasses =
+    "bg-white text-stone-900 placeholder-stone-500 block w-full rounded-xl border border-stone-300 shadow-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-white text-sm px-4 py-3 transition-all outline-none!";
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-8 bg-white p-6 rounded-xl shadow-sm border border-stone-100"
-    >
-      {/* Public Information Section */}
-      <div>
-        <h3 className="text-lg font-serif font-bold text-stone-800 mb-4 border-b pb-2">
+    <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+      <motion.div
+        variants={formSectionVariants}
+        initial="hidden"
+        animate="show"
+        className="bg-white/80 backdrop-blur-md p-5 sm:p-8 rounded-2xl shadow-sm border border-stone-200/80"
+      >
+        <h3 className="text-lg sm:text-xl font-serif font-bold text-stone-800 mb-6 border-b border-stone-100 pb-4 flex items-center gap-2">
+          <User className="w-5 h-5 text-amber-600" />
           Thông tin chung
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-stone-700">
-              Họ và Tên *
+            <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+              Họ và Tên <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="bg-white text-stone-900 placeholder-stone-400 mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
+              className={inputClasses}
+              placeholder="Nhập họ và tên..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-stone-700">
-              Giới tính *
+            <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+              Giới tính <span className="text-red-500">*</span>
             </label>
-            <select
-              value={gender}
-              onChange={(e) => setGender(e.target.value as Gender)}
-              className="bg-white text-stone-900 placeholder-stone-400 mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
-            >
-              <option value="male">Nam</option>
-              <option value="female">Nữ</option>
-              <option value="other">Khác</option>
-            </select>
+            <div className="relative">
+              <select
+                value={gender}
+                onChange={(e) => setGender(e.target.value as Gender)}
+                className={`${inputClasses} appearance-none`}
+              >
+                <option value="male">Nam</option>
+                <option value="female">Nữ</option>
+                <option value="other">Khác</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-stone-500">
+                <Settings2 className="w-4 h-4" />
+              </div>
+            </div>
           </div>
 
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-stone-700 mb-2">
+          <div className="flex items-center sm:mt-7 mt-2">
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <div className="relative flex items-center">
+                <input
+                  type="checkbox"
+                  checked={isInLaw}
+                  onChange={(e) => setIsInLaw(e.target.checked)}
+                  className="peer sr-only"
+                />
+                <div className="w-5 h-5 border-2 border-stone-300 rounded peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-colors flex items-center justify-center">
+                  <motion.svg
+                    initial={false}
+                    animate={{
+                      opacity: isInLaw ? 1 : 0,
+                      scale: isInLaw ? 1 : 0.5,
+                    }}
+                    className="w-3 h-3 text-white pointer-events-none"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={4}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </motion.svg>
+                </div>
+              </div>
+              <span className="text-sm font-semibold text-stone-700 group-hover:text-amber-700 transition-colors">
+                Là con Dâu hoặc con Rể
+              </span>
+            </label>
+          </div>
+
+          <div className="md:col-span-2 mt-2">
+            <label className="block text-sm font-semibold text-stone-700 mb-2.5">
               Ảnh đại diện
             </label>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 bg-stone-50/50 p-4 rounded-xl border border-stone-100">
               <div
-                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-sm text-white overflow-hidden shrink-0 shadow-sm border border-stone-200 bg-stone-100
-                  ${!avatarPreview ? (gender === "male" ? "bg-sky-700" : gender === "female" ? "bg-rose-700" : "bg-stone-500") : ""}`}
+                className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center text-xl font-bold text-white overflow-hidden shrink-0 shadow-md border-4 border-white
+                  ${!avatarPreview ? (gender === "male" ? "bg-linear-to-br from-sky-400 to-sky-700" : gender === "female" ? "bg-linear-to-br from-rose-400 to-rose-700" : "bg-linear-to-br from-stone-400 to-stone-600") : ""}`}
               >
                 {avatarPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -213,25 +323,34 @@ export default function MemberForm({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="opacity-80">
+                  <span className="opacity-90">
                     {fullName ? fullName.charAt(0).toUpperCase() : "?"}
                   </span>
                 )}
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setAvatarFile(file);
-                        setAvatarPreview(URL.createObjectURL(file));
-                      }
-                    }}
-                    className="block w-full text-sm text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 transition-colors"
-                  />
+              <div className="flex-1 w-full">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setAvatarFile(file);
+                          setAvatarPreview(URL.createObjectURL(file));
+                        }
+                      }}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <button
+                      type="button"
+                      className="flex items-center gap-2 text-sm font-medium px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200/50 hover:bg-amber-100 hover:border-amber-300 transition-colors rounded-lg"
+                    >
+                      <ImageIcon className="w-4 h-4" />
+                      Chọn ảnh mới
+                    </button>
+                  </div>
                   {avatarPreview && (
                     <button
                       type="button"
@@ -270,24 +389,26 @@ export default function MemberForm({
                         setAvatarFile(null);
                         setAvatarPreview(null);
                       }}
-                      className="text-sm text-rose-600 hover:text-rose-700 font-medium px-3 py-1.5 border border-rose-200 rounded-md bg-rose-50 hover:bg-rose-100 transition-colors whitespace-nowrap"
+                      className="flex items-center gap-2 text-sm text-rose-600 hover:text-rose-700 font-medium px-4 py-2 border border-rose-200 rounded-lg bg-rose-50 hover:bg-rose-100 transition-colors"
                     >
+                      <Trash2 className="w-4 h-4" />
                       Xóa ảnh
                     </button>
                   )}
                 </div>
-                <p className="mt-1 text-xs text-stone-500">
-                  Hỗ trợ PNG, JPG, GIF lên đến 2MB.
+                <p className="mt-2.5 text-xs text-stone-500 flex items-center gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 text-stone-400" />
+                  Hỗ trợ PNG, JPG, GIF tối đa 2MB.
                 </p>
               </div>
             </div>
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-stone-700 mb-1">
-              Ngày sinh
+            <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+              Ngày sinh dương lịch
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-3">
               <input
                 type="number"
                 placeholder="Ngày"
@@ -297,7 +418,7 @@ export default function MemberForm({
                 onChange={(e) =>
                   setBirthDay(e.target.value ? Number(e.target.value) : "")
                 }
-                className="bg-white text-stone-900 placeholder-stone-400 block w-full rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
+                className={inputClasses}
               />
               <input
                 type="number"
@@ -308,7 +429,7 @@ export default function MemberForm({
                 onChange={(e) =>
                   setBirthMonth(e.target.value ? Number(e.target.value) : "")
                 }
-                className="bg-white text-stone-900 placeholder-stone-400 block w-full rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
+                className={inputClasses}
               />
               <input
                 type="number"
@@ -317,180 +438,237 @@ export default function MemberForm({
                 onChange={(e) =>
                   setBirthYear(e.target.value ? Number(e.target.value) : "")
                 }
-                className="bg-white text-stone-900 placeholder-stone-400 block w-full rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
+                className={inputClasses}
               />
             </div>
           </div>
 
-          <div className="md:col-span-2 space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 border p-3 rounded-lg bg-stone-50/50">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isInLaw}
-                  onChange={(e) => setIsInLaw(e.target.checked)}
-                  className="rounded border-stone-300 text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
-                />
-                <span className="text-sm font-medium text-stone-700">
-                  Là con Dâu / con Rể
-                </span>
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isDeceased}
-                  onChange={(e) => {
-                    setIsDeceased(e.target.checked);
-                    if (!e.target.checked) {
-                      setDeathYear("");
-                      setDeathMonth("");
-                      setDeathDay("");
-                    }
-                  }}
-                  className="rounded border-stone-300 text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
-                />
-                <span className="text-sm font-medium text-stone-700">
+          <div className="md:col-span-2 bg-stone-50/50 p-5 rounded-2xl border border-stone-200/60 shadow-xs">
+            <div className="flex flex-col gap-4">
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={isDeceased}
+                    onChange={(e) => {
+                      setIsDeceased(e.target.checked);
+                      if (!e.target.checked) {
+                        setDeathYear("");
+                        setDeathMonth("");
+                        setDeathDay("");
+                      }
+                    }}
+                    className="peer sr-only"
+                  />
+                  <div className="w-5 h-5 border-2 border-stone-300 rounded peer-checked:bg-stone-600 peer-checked:border-stone-600 transition-colors flex items-center justify-center">
+                    <motion.svg
+                      initial={false}
+                      animate={{
+                        opacity: isDeceased ? 1 : 0,
+                        scale: isDeceased ? 1 : 0.5,
+                      }}
+                      className="w-3 h-3 text-white pointer-events-none"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={4}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </motion.svg>
+                  </div>
+                </div>
+                <span className="text-sm font-semibold text-stone-700 group-hover:text-stone-900 transition-colors">
                   Đã qua đời
                 </span>
               </label>
             </div>
 
-            {isDeceased && (
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">
-                  Ngày mất
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <input
-                    type="number"
-                    placeholder="Ngày"
-                    min="1"
-                    max="31"
-                    value={deathDay}
-                    onChange={(e) =>
-                      setDeathDay(e.target.value ? Number(e.target.value) : "")
-                    }
-                    className="bg-white text-stone-900 placeholder-stone-400 block w-full rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Tháng"
-                    min="1"
-                    max="12"
-                    value={deathMonth}
-                    onChange={(e) =>
-                      setDeathMonth(
-                        e.target.value ? Number(e.target.value) : "",
-                      )
-                    }
-                    className="bg-white text-stone-900 placeholder-stone-400 block w-full rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Năm"
-                    value={deathYear}
-                    onChange={(e) =>
-                      setDeathYear(e.target.value ? Number(e.target.value) : "")
-                    }
-                    className="bg-white text-stone-900 placeholder-stone-400 block w-full rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
-                  />
-                </div>
-              </div>
-            )}
+            <AnimatePresence>
+              {isDeceased && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginTop: 20 }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  className="overflow-hidden"
+                >
+                  <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+                    Ngày mất
+                  </label>
+                  <div className="grid grid-cols-3 gap-3 pt-1">
+                    <input
+                      type="number"
+                      placeholder="Ngày"
+                      min="1"
+                      max="31"
+                      value={deathDay}
+                      onChange={(e) =>
+                        setDeathDay(
+                          e.target.value ? Number(e.target.value) : "",
+                        )
+                      }
+                      className={inputClasses}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Tháng"
+                      min="1"
+                      max="12"
+                      value={deathMonth}
+                      onChange={(e) =>
+                        setDeathMonth(
+                          e.target.value ? Number(e.target.value) : "",
+                        )
+                      }
+                      className={inputClasses}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Năm"
+                      value={deathYear}
+                      onChange={(e) =>
+                        setDeathYear(
+                          e.target.value ? Number(e.target.value) : "",
+                        )
+                      }
+                      className={inputClasses}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-stone-700">
+            <label className="block text-sm font-semibold text-stone-700 mb-1.5">
               Ghi chú
             </label>
             <textarea
               rows={3}
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="bg-white text-stone-900 placeholder-stone-400 mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
+              placeholder="Thêm thông tin bổ sung, tiểu sử..."
+              className={`${inputClasses} resize-none`}
             />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Private Information Section (Admin Only) */}
       {isAdmin && (
-        <div className="bg-amber-50/50 p-4 rounded-lg border border-amber-100">
-          <h3 className="text-lg font-serif font-bold text-amber-900 mb-4 border-b border-amber-200 pb-2 flex items-center gap-2">
-            <span>🔒 Thông tin riêng tư</span>
-            <span className="text-xs font-normal bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">
-              Admin Only
+        <motion.div
+          variants={formSectionVariants}
+          initial="hidden"
+          animate="show"
+          transition={{ delay: 0.1 }}
+          className="bg-linear-to-br from-amber-50/80 to-stone-50/80 backdrop-blur-md p-5 sm:p-8 rounded-2xl border border-amber-200/50 shadow-sm relative overflow-hidden"
+        >
+          {/* Decorative Background Icon */}
+          <Lock className="absolute -right-6 -bottom-6 w-32 h-32 text-amber-500/5 rotate-12" />
+
+          <h3 className="text-lg sm:text-xl font-serif font-bold text-amber-900 mb-6 border-b border-amber-200/50 pb-4 flex items-center gap-2 relative z-10">
+            <span className="p-1.5 bg-amber-100/80 text-amber-700 rounded-lg shadow-xs">
+              <Lock className="w-4 h-4" />
+            </span>
+            <span>Thông tin riêng tư</span>
+            <span className="text-[10px] ml-auto sm:ml-2 font-bold bg-amber-200/80 text-amber-800 uppercase tracking-wider px-2.5 py-1 rounded-md shadow-xs border border-amber-300/60">
+              Chỉ Admin
             </span>
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
             <div>
-              <label className="block text-sm font-medium text-stone-700">
-                Số điện thoại
+              <label className="flex items-center gap-1.5 text-sm font-semibold text-amber-900/80 mb-1.5">
+                <Phone className="w-4 h-4" /> Số điện thoại
               </label>
               <input
                 type="tel"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 disabled={isDeceased}
-                className="bg-white text-stone-900 placeholder-stone-400 mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border disabled:bg-stone-100 disabled:text-stone-400"
+                placeholder="Ví dụ: 0912345678"
+                className={`${inputClasses} disabled:bg-stone-100 disabled:text-stone-400 disabled:cursor-not-allowed`}
               />
               {isDeceased && (
-                <p className="text-xs text-red-500 mt-1">
+                <p className="text-[11px] font-medium text-rose-500 mt-1.5 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
                   Không thể nhập SĐT cho người đã mất
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700">
-                Nghề nghiệp
+              <label className="flex items-center gap-1.5 text-sm font-semibold text-amber-900/80 mb-1.5">
+                <Briefcase className="w-4 h-4" /> Nghề nghiệp
               </label>
               <input
                 type="text"
                 value={occupation}
                 onChange={(e) => setOccupation(e.target.value)}
-                className="bg-white text-stone-900 placeholder-stone-400 mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
+                placeholder="Ví dụ: Kỹ sư, Bác sĩ..."
+                className={inputClasses}
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-stone-700">
-                Nơi ở hiện tại
+              <label className="flex items-center gap-1.5 text-sm font-semibold text-amber-900/80 mb-1.5">
+                <MapPin className="w-4 h-4" /> Nơi ở hiện tại
               </label>
               <input
                 type="text"
                 value={currentResidence}
                 onChange={(e) => setCurrentResidence(e.target.value)}
-                className="bg-white text-stone-900 placeholder-stone-400 mt-1 block w-full rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
+                placeholder="Địa chỉ cư trú..."
+                className={inputClasses}
               />
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
-      {error && (
-        <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
-          {error}
-        </div>
-      )}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="text-rose-700 text-sm font-medium bg-rose-50 border border-rose-200 p-4 rounded-xl flex items-start gap-3 shadow-sm"
+          >
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+            <p>{error}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="flex justify-end gap-4 pt-4 border-t border-stone-200">
+      <motion.div
+        variants={formSectionVariants}
+        initial="hidden"
+        animate="show"
+        transition={{ delay: 0.2 }}
+        className="flex justify-end gap-3 sm:gap-4 pt-6"
+      >
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-4 py-2 border border-stone-300 shadow-sm text-sm font-medium rounded-md text-stone-700 bg-white hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stone-500"
+          className="px-5 py-2.5 sm:py-3 border border-stone-200/80 shadow-sm text-sm font-bold rounded-xl text-stone-600 bg-white hover:bg-stone-50 hover:text-stone-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stone-500 cursor-pointer transition-all"
         >
-          Hủy
+          Hủy bỏ
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-amber-700 hover:bg-amber-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-70"
+          className="px-6 py-2.5 sm:py-3 border border-transparent shadow-md text-sm font-bold rounded-xl text-white bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer transition-all relative overflow-hidden flex items-center gap-2"
         >
-          {loading ? "Đang lưu..." : isEditing ? "Cập nhật" : "Thêm thành viên"}
+          {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+          {loading
+            ? "Đang lưu..."
+            : isEditing
+              ? "Lưu thay đổi"
+              : "Thêm thành viên"}
         </button>
-      </div>
+      </motion.div>
     </form>
   );
 }

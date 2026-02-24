@@ -1,4 +1,5 @@
 import config from "@/app/config";
+import AvatarToggle from "@/components/AvatarToggle";
 import DashboardMemberList from "@/components/DashboardMemberList";
 import FamilyTree from "@/components/FamilyTree";
 import Footer from "@/components/Footer";
@@ -106,8 +107,9 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
 
       <main className="flex-1 overflow-auto bg-stone-50/50 flex flex-col">
         {currentView !== "list" && persons.length > 0 && finalRootId && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full flex justify-center sm:justify-start">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full flex items-center justify-center gap-4">
             <RootSelector persons={persons} currentRootId={finalRootId} />
+            <AvatarToggle />
           </div>
         )}
 

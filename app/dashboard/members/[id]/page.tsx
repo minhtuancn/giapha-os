@@ -54,20 +54,27 @@ export default async function MemberDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <header className="bg-white shadow-sm border-b border-stone-200">
+    <div className="min-h-screen bg-stone-50 flex flex-col relative overflow-hidden">
+      {/* Decorative background blurs */}
+      <div className="absolute -top-[20%] -left-[10%] w-[500px] h-[500px] bg-amber-200/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[40%] -right-[10%] w-[400px] h-[400px] bg-stone-300/20 rounded-full blur-[100px] pointer-events-none" />
+
+      <header className="sticky top-0 z-30 bg-white/60 backdrop-blur-md border-b border-stone-200/60 shadow-sm transition-all duration-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link
             href="/dashboard"
-            className="text-amber-700 hover:text-amber-900 font-medium"
+            className="group flex items-center text-stone-500 hover:text-amber-700 font-medium text-sm transition-colors"
           >
-            ← Quay lại danh sách
+            <span className="mr-1 group-hover:-translate-x-1 transition-transform">
+              ←
+            </span>
+            Quay lại
           </Link>
           {isAdmin && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <Link
                 href={`/dashboard/members/${id}/edit`}
-                className="px-4 py-2 bg-amber-100 text-amber-800 rounded-md hover:bg-amber-200 font-medium text-sm transition-colors"
+                className="px-4 py-2 bg-stone-100/80 text-stone-700 rounded-lg hover:bg-stone-200 hover:text-stone-900 font-medium text-sm transition-all shadow-sm"
               >
                 Chỉnh sửa
               </Link>
@@ -77,8 +84,8 @@ export default async function MemberDetailPage({ params }: PageProps) {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10 w-full">
+        <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-stone-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
           <MemberDetailContent
             person={person}
             privateData={privateData}

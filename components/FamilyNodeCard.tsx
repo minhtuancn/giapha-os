@@ -1,6 +1,7 @@
 "use client";
 
 import { Person } from "@/types";
+import { Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -15,6 +16,8 @@ interface FamilyNodeCardProps {
   onClickName?: (e: React.MouseEvent) => void;
   isExpandable?: boolean;
   isExpanded?: boolean;
+  isRingVisible?: boolean;
+  isPlusVisible?: boolean;
 }
 
 export default function FamilyNodeCard({
@@ -24,54 +27,82 @@ export default function FamilyNodeCard({
   onClickName,
   isExpandable = false,
   isExpanded = false,
+  isRingVisible = false,
+  isPlusVisible = false,
 }: FamilyNodeCardProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
   const isDeceased = person.is_deceased;
+  const showAvatar = searchParams.get("avatar") !== "hide";
 
   const content = (
     <div
       onClick={onClickCard}
-      className={`group py-2 px-1 w-20 sm:w-24 md:w-28 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer relative bg-transparent rounded-xl
-        ${isMainNode && isDeceased ? "grayscale opacity-80" : ""}
+      className={`group py-2 px-1 w-20 sm:w-24 md:w-28 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer relative bg-white/70 backdrop-blur-md rounded-2xl
+        ${isMainNode && isDeceased ? "grayscale-[0.4] opacity-80" : ""}
       `}
     >
-      {/* Expand/Collapse Indicator */}
-      {isExpandable && (
-        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white border border-stone-200 rounded-full w-6 h-6 flex items-center justify-center shadow-sm z-10 text-stone-500 hover:text-stone-800 font-bold text-sm transition-colors">
-          {isExpanded ? "-" : "+"}
+      {isRingVisible && (
+        <div className="absolute top-1/3 -left-2.5 sm:-left-4 size-5 sm:size-6 rounded-full shadow-sm bg-white border border-stone-200 z-20 flex items-center justify-center text-[10px] sm:text-xs">
+          💍
         </div>
       )}
+      {isPlusVisible && (
+        <div className="absolute top-1/3 -left-2.5 sm:-left-4 size-5 sm:size-6 rounded-full shadow-sm bg-white border border-stone-200 z-20 flex items-center justify-center text-[10px] sm:text-xs">
+          +
+        </div>
+      )}
+      {/* Decorative gradient blob for the card background hover */}
+      {/* <div
+        className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300 z-0 ${person.gender === "male" ? "bg-sky-400" : person.gender === "female" ? "bg-rose-400" : "bg-stone-400"}`}
+      /> */}
+
+      {/* Expand/Collapse Indicator */}
+      {isExpandable && (
+        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white border border-stone-200/80 rounded-full w-6 h-6 flex items-center justify-center shadow-md z-20 text-stone-500 hover:text-amber-600 transition-colors">
+          {isExpanded ? (
+            <Minus className="w-3.5 h-3.5" />
+          ) : (
+            <Plus className="w-3.5 h-3.5" />
+          )}
+        </div>
+      )}
+
       {/* 1. Avatar */}
-      <div
-        className={`h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm text-white overflow-hidden mb-1.5 sm:mb-2 shrink-0 shadow-md ring-2 ring-white transition-transform group-hover:scale-105
-            ${
-              person.gender === "male"
-                ? "bg-sky-700"
-                : person.gender === "female"
-                  ? "bg-rose-700"
-                  : "bg-stone-500"
-            }`}
-      >
-        {person.avatar_url ? (
-          <Image
-            unoptimized
-            src={person.avatar_url}
-            alt={person.full_name}
-            className="w-full h-full object-cover"
-            width={56}
-            height={56}
-          />
-        ) : (
-          <DefaultAvatar gender={person.gender} />
-        )}
-      </div>
+      {showAvatar && (
+        <div className="relative z-10 mb-1.5 sm:mb-2">
+          <div
+            className={`h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm text-white overflow-hidden shrink-0 shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105
+              ${
+                person.gender === "male"
+                  ? "bg-linear-to-br from-sky-400 to-sky-700"
+                  : person.gender === "female"
+                    ? "bg-linear-to-br from-rose-400 to-rose-700"
+                    : "bg-linear-to-br from-stone-400 to-stone-600"
+              }`}
+          >
+            {person.avatar_url ? (
+              <Image
+                unoptimized
+                src={person.avatar_url}
+                alt={person.full_name}
+                className="w-full h-full object-cover"
+                width={64}
+                height={64}
+              />
+            ) : (
+              <DefaultAvatar gender={person.gender} />
+            )}
+          </div>
+        </div>
+      )}
 
       {/* 2. Gender Icon + Name */}
-      <div className="flex flex-col items-center justify-center gap-1 w-full px-0.5 sm:px-1">
+      <div className="flex flex-col items-center justify-center gap-1 w-full px-0.5 sm:px-1 relative z-10">
         <span
-          className={`text-[11px] sm:text-xs md:text-sm font-semibold text-center leading-tight line-clamp-2 max-w-[150px] transition-colors ${onClickName ? "text-stone-900 group-hover:text-amber-700 hover:underline" : "text-stone-900"}`}
+          className={`text-[10px] sm:text-[11px] md:text-xs font-bold text-center leading-tight line-clamp-2 transition-colors
+            ${onClickName ? "text-stone-800 group-hover:text-amber-700 hover:underline" : "text-stone-800 group-hover:text-amber-800"}`}
           title={person.full_name}
           onClick={(e) => {
             if (onClickName) {
@@ -83,6 +114,11 @@ export default function FamilyNodeCard({
         >
           {person.full_name}
         </span>
+        {/* {isDeceased && (
+          <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold bg-stone-100 text-stone-400 uppercase tracking-wider border border-stone-200/50">
+            Đã mất
+          </span>
+        )} */}
       </div>
 
       {/* 3. Role */}
@@ -102,7 +138,11 @@ export default function FamilyNodeCard({
   newParams.set("memberModalId", person.id);
 
   return (
-    <Link href={`${pathname}?${newParams.toString()}`} scroll={false}>
+    <Link
+      href={`${pathname}?${newParams.toString()}`}
+      scroll={false}
+      className="block w-fit"
+    >
       {content}
     </Link>
   );

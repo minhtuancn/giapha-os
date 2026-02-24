@@ -36,7 +36,7 @@ export function getLunarDateString(
     const lMonth = Math.abs(lMonthRaw).toString().padStart(2, "0");
     const lYear = lunar.getYear();
 
-    return `${lDay}/${lMonth}${isLeap ? " nhuận" : ""}/${lYear} (Âm lịch)`;
+    return `${lDay}/${lMonth}${isLeap ? " nhuận" : ""}/${lYear}`;
   } catch (error) {
     console.error("Lunar conversion error:", error);
     return null;

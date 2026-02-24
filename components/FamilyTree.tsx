@@ -125,22 +125,19 @@ export default function FamilyTree({
       <li>
         <div className="node-container inline-flex flex-col items-center">
           {/* Main Person & Spouses Row */}
-          <div className="flex relative z-10 bg-white rounded-2xl shadow-md border border-stone-200/80 p-2 sm:p-3 transition-opacity">
+          <div className="flex relative z-10 bg-white rounded-2xl shadow-md border border-stone-200/80 transition-opacity">
             <FamilyNodeCard person={data.person} isMainNode={true} />
 
             {data.spouses.length > 0 && (
               <>
-                <div className="mt-6 w-5 h-5 sm:w-6 sm:h-6 rounded-full shadow-sm bg-white border border-stone-200 z-20 flex items-center justify-center text-[10px] sm:text-xs">
+                {/* <div className="mt-6 w-5 h-5 sm:w-6 sm:h-6 rounded-full shadow-sm bg-white border border-stone-200 z-20 flex items-center justify-center text-[10px] sm:text-xs">
                   💍
-                </div>
+                </div> */}
                 {data.spouses.map((spouseData, idx) => (
                   <div key={spouseData.person.id} className="flex relative">
-                    {idx > 0 && (
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full shadow-sm bg-white border border-stone-200 z-20 flex items-center justify-center text-[10px] sm:text-xs mt-6">
-                        +
-                      </div>
-                    )}
                     <FamilyNodeCard
+                      isRingVisible={idx === 0}
+                      isPlusVisible={idx > 0}
                       person={spouseData.person}
                       role={
                         spouseData.person.gender === "male" ? "Chồng" : "Vợ"
@@ -209,12 +206,12 @@ export default function FamilyTree({
         .css-tree li::before, .css-tree li::after {
           content: '';
           position: absolute; top: 0; right: 50%;
-          border-top: 2px solid #cbd5e1;
+          border-top: 2px solid #d6d3d1;
           width: 50%; height: 30px;
         }
         .css-tree li::after {
           right: auto; left: 50%;
-          border-left: 2px solid #cbd5e1;
+          border-left: 2px solid #d6d3d1;
         }
 
         /* Remove left-right connectors from elements without siblings */
@@ -232,7 +229,7 @@ export default function FamilyTree({
 
         /* Add back the vertical connector to the last nodes */
         .css-tree li:last-child::before {
-          border-right: 2px solid #cbd5e1;
+          border-right: 2px solid #d6d3d1;
           border-radius: 0 12px 0 0;
         }
         .css-tree li:first-child::after {
@@ -243,7 +240,7 @@ export default function FamilyTree({
         .css-tree ul ul::before {
           content: '';
           position: absolute; top: 0; left: 50%;
-          border-left: 2px solid #cbd5e1;
+          border-left: 2px solid #d6d3d1;
           width: 0; height: 30px;
         }
       `,

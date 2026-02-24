@@ -555,24 +555,24 @@ export default function RelationshipManager({
 
       {/* Add Button (Admin) */}
       {isAdmin && !isAdding && !isAddingBulk && !isAddingSpouse && (
-        <div className="flex gap-2 mt-4 flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-3 mt-4">
           <button
             onClick={() => setIsAddingBulk(true)}
-            className="flex-[1_1_100%] py-2.5 border-2 border-dashed border-stone-200 bg-stone-50/50 hover:bg-stone-50 rounded-xl text-stone-500 font-medium text-sm hover:border-sky-400 hover:text-sky-700 transition-all duration-200 cursor-pointer"
+            className="flex-1 py-3 border-2 border-dashed border-stone-200 bg-stone-50/50 hover:bg-stone-50 rounded-xl sm:rounded-2xl text-stone-500 font-medium text-sm hover:border-sky-400 hover:text-sky-700 transition-all duration-200 cursor-pointer"
           >
             + Thêm Con
           </button>
 
           <button
             onClick={() => setIsAddingSpouse(true)}
-            className="flex-[1_1_100%] py-2.5 border-2 border-dashed border-stone-200 bg-stone-50/50 hover:bg-stone-50 rounded-xl text-stone-500 font-medium text-sm hover:border-rose-400 hover:text-rose-700 transition-all duration-200 cursor-pointer"
+            className="flex-1 py-3 border-2 border-dashed border-stone-200 bg-stone-50/50 hover:bg-stone-50 rounded-xl sm:rounded-2xl text-stone-500 font-medium text-sm hover:border-rose-400 hover:text-rose-700 transition-all duration-200 cursor-pointer"
           >
             + Thêm Vợ/Chồng
           </button>
 
           <button
             onClick={() => setIsAdding(true)}
-            className="flex-[1_1_100%] py-2.5 border-2 border-dashed border-stone-200 bg-stone-50/50 hover:bg-stone-50 rounded-xl text-stone-500 font-medium text-sm hover:border-amber-400 hover:text-amber-700 transition-all duration-200 cursor-pointer"
+            className="flex-1 py-3 border-2 border-dashed border-stone-200 bg-stone-50/50 hover:bg-stone-50 rounded-xl sm:rounded-2xl text-stone-500 font-medium text-sm hover:border-amber-400 hover:text-amber-700 transition-all duration-200 cursor-pointer"
           >
             + Thêm Mối Quan Hệ
           </button>
@@ -581,7 +581,7 @@ export default function RelationshipManager({
 
       {/* Add Form (Admin) */}
       {isAdmin && isAdding && (
-        <div className="mt-4 bg-stone-50 p-4 rounded-lg border border-stone-200">
+        <div className="mt-4 bg-stone-50/50 p-4 sm:p-5 rounded-xl border border-stone-200 shadow-sm">
           <h4 className="font-bold text-stone-800 mb-3 text-sm">
             Thêm Quan Hệ Mới
           </h4>
@@ -596,7 +596,7 @@ export default function RelationshipManager({
                 placeholder="VD: Vợ cả, Vợ hai, Chồng trước..."
                 value={newRelNote}
                 onChange={(e) => setNewRelNote(e.target.value)}
-                className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 p-2 border mb-3"
+                className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md sm:rounded-lg border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 p-2 sm:p-2.5 border mb-3 transition-colors"
               />
             </div>
 
@@ -612,7 +612,7 @@ export default function RelationshipManager({
                       e.target.value as "parent" | "child" | "spouse",
                     )
                   }
-                  className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 p-2 border"
+                  className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md sm:rounded-lg border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 p-2 sm:p-2.5 border transition-colors"
                 >
                   <option value="parent">Người này là Con của...</option>
                   <option value="spouse">Người này là Vợ/Chồng của...</option>
@@ -632,7 +632,7 @@ export default function RelationshipManager({
                   onChange={(e) =>
                     setNewRelType(e.target.value as RelationshipType)
                   }
-                  className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 p-2 border"
+                  className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md sm:rounded-lg border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 p-2 sm:p-2.5 border transition-colors"
                 >
                   <option value="biological_child">Con ruột</option>
                   <option value="adopted_child">Con nuôi</option>
@@ -649,7 +649,7 @@ export default function RelationshipManager({
                 placeholder="Nhập tên để tìm..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 p-2 border"
+                className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md sm:rounded-lg border-stone-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 p-2 sm:p-2.5 border transition-colors"
               />
               {/* Search Results Dropdown */}
               {(searchResults.length > 0 ||
@@ -718,7 +718,7 @@ export default function RelationshipManager({
               <button
                 onClick={handleAddRelationship}
                 disabled={!selectedTargetId || processing}
-                className="flex-1 bg-amber-700 text-white py-2 rounded-md text-sm font-medium hover:bg-amber-800 disabled:opacity-50"
+                className="flex-1 bg-amber-700 text-white py-2 sm:py-2.5 rounded-md sm:rounded-lg text-sm font-medium hover:bg-amber-800 disabled:opacity-50 transition-colors cursor-pointer"
               >
                 {processing ? "Đang lưu..." : "Lưu"}
               </button>
@@ -729,7 +729,7 @@ export default function RelationshipManager({
                   setSearchTerm("");
                   setNewRelNote("");
                 }}
-                className="px-4 py-2 bg-white border border-stone-300 text-stone-700 rounded-md text-sm hover:bg-stone-50"
+                className="px-4 py-2 sm:py-2.5 bg-white border border-stone-300 text-stone-700 rounded-md sm:rounded-lg text-sm hover:bg-stone-50 transition-colors cursor-pointer"
               >
                 Hủy
               </button>
@@ -740,7 +740,7 @@ export default function RelationshipManager({
 
       {/* Bulk Add Children Form (Admin) */}
       {isAdmin && isAddingBulk && (
-        <div className="mt-4 bg-stone-50 p-4 rounded-lg border border-sky-200">
+        <div className="mt-4 bg-sky-50/50 p-4 sm:p-5 rounded-xl border border-sky-200 shadow-sm">
           <h4 className="font-bold text-sky-800 mb-3 text-sm">
             Thêm Nhanh Nhiều Con
           </h4>
@@ -753,7 +753,7 @@ export default function RelationshipManager({
               <select
                 value={selectedSpouseId}
                 onChange={(e) => setSelectedSpouseId(e.target.value)}
-                className="bg-white text-stone-900 block w-full text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"
+                className="flex-1 bg-white text-stone-900 placeholder-stone-400 text-sm rounded-md sm:rounded-lg border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 sm:p-2.5 border transition-colors"
               >
                 <option value="unknown">
                   Không rõ (hoặc Vợ/Chồng khác chưa thêm)
@@ -861,7 +861,7 @@ export default function RelationshipManager({
                 disabled={
                   processing || bulkChildren.every((c) => c.name.trim() === "")
                 }
-                className="flex-1 bg-sky-600 text-white py-2 rounded-md text-sm font-medium hover:bg-sky-700 disabled:opacity-50"
+                className="flex-1 bg-sky-600 text-white py-2 sm:py-2.5 rounded-md sm:rounded-lg text-sm font-medium hover:bg-sky-700 disabled:opacity-50 transition-colors cursor-pointer"
               >
                 {processing ? "Đang lưu..." : "Lưu Tất Cả"}
               </button>
@@ -878,7 +878,7 @@ export default function RelationshipManager({
                   ]);
                   setSelectedSpouseId("");
                 }}
-                className="px-4 py-2 bg-white border border-stone-300 text-stone-700 rounded-md text-sm hover:bg-stone-50"
+                className="px-4 py-2 sm:py-2.5 bg-white border border-stone-300 text-stone-700 rounded-md sm:rounded-lg text-sm hover:bg-stone-50 transition-colors cursor-pointer"
               >
                 Hủy
               </button>
@@ -889,7 +889,7 @@ export default function RelationshipManager({
 
       {/* Quick Add Spouse Form (Admin) */}
       {isAdmin && isAddingSpouse && (
-        <div className="mt-4 bg-rose-50 p-4 rounded-lg border border-rose-200">
+        <div className="mt-4 bg-rose-50/50 p-4 sm:p-5 rounded-xl border border-rose-200 shadow-sm">
           <h4 className="font-bold text-rose-800 mb-3 text-sm">
             Thêm Nhanh Vợ/Chồng
           </h4>
@@ -904,7 +904,7 @@ export default function RelationshipManager({
                 placeholder="Nhập họ và tên..."
                 value={newSpouseName}
                 onChange={(e) => setNewSpouseName(e.target.value)}
-                className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md border-stone-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 p-2 border"
+                className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md sm:rounded-lg border-stone-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 p-2 sm:p-2.5 border transition-colors"
               />
             </div>
 
@@ -917,7 +917,7 @@ export default function RelationshipManager({
                 placeholder="VD: 1980"
                 value={newSpouseBirthYear}
                 onChange={(e) => setNewSpouseBirthYear(e.target.value)}
-                className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md border-stone-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 p-2 border"
+                className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md sm:rounded-lg border-stone-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 p-2 sm:p-2.5 border transition-colors"
               />
             </div>
 
@@ -930,7 +930,7 @@ export default function RelationshipManager({
                 placeholder="Tuỳ chọn..."
                 value={newSpouseNote}
                 onChange={(e) => setNewSpouseNote(e.target.value)}
-                className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md border-stone-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 p-2 border"
+                className="bg-white text-stone-900 placeholder-stone-400 block w-full text-sm rounded-md sm:rounded-lg border-stone-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 p-2 sm:p-2.5 border transition-colors"
               />
             </div>
 
@@ -948,7 +948,7 @@ export default function RelationshipManager({
               <button
                 onClick={handleQuickAddSpouse}
                 disabled={!newSpouseName.trim() || processing}
-                className="flex-1 bg-rose-600 text-white py-2 rounded-md text-sm font-medium hover:bg-rose-700 disabled:opacity-50"
+                className="flex-1 bg-rose-600 text-white py-2 sm:py-2.5 rounded-md sm:rounded-lg text-sm font-medium hover:bg-rose-700 disabled:opacity-50 transition-colors cursor-pointer"
               >
                 {processing ? "Đang lưu..." : "Lưu"}
               </button>
@@ -959,7 +959,7 @@ export default function RelationshipManager({
                   setNewSpouseBirthYear("");
                   setNewSpouseNote("");
                 }}
-                className="px-4 py-2 bg-white border border-stone-300 text-stone-700 rounded-md text-sm hover:bg-stone-50"
+                className="px-4 py-2 sm:py-2.5 bg-white border border-stone-300 text-stone-700 rounded-md sm:rounded-lg text-sm hover:bg-stone-50 transition-colors cursor-pointer"
               >
                 Hủy
               </button>

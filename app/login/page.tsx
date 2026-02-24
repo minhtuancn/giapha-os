@@ -6,13 +6,25 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, KeyRound, Mail, Shield, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("giaphaos@homielab.com");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDemo, setIsDemo] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hostname = window.location.hostname;
+      if (hostname === "localhost" || hostname === "giapha-os.homielab.com") {
+        setIsDemo(true);
+        setEmail("giaphaos@homielab.com");
+        setPassword("giaphaos");
+      }
+    }
+  }, []);
 
   const router = useRouter();
   const supabase = createClient();
@@ -107,9 +119,20 @@ export default function LoginPage() {
             </h2>
             <p className="mt-3 text-sm text-stone-500 font-medium tracking-wide">
               {isLogin
-                ? "Chào mừng trở lại! Đăng nhập để truy cập gia phả."
+                ? "Đăng nhập để truy cập gia phả."
                 : "Tạo tài khoản thành viên mới."}
             </p>
+            {isDemo && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 p-3 bg-amber-50 border border-amber-200/60 rounded-xl"
+              >
+                <p className="text-[13px] font-semibold text-amber-800">
+                  Website Demo. Dữ liệu đều không có thật.
+                </p>
+              </motion.div>
+            )}
           </div>
 
           <form className="space-y-5 relative z-10" onSubmit={handleSubmit}>

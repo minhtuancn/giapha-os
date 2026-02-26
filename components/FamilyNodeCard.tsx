@@ -111,6 +111,11 @@ export default function FamilyNodeCard({
         >
           {person.full_name}
         </span>
+        {person.birth_order != null && (
+          <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200/60 leading-none">
+            {person.birth_order === 1 ? "Trưởng" : `Thứ ${person.birth_order}`}
+          </span>
+        )}
         {/* {isDeceased && (
           <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold bg-stone-100 text-stone-400 uppercase tracking-wider border border-stone-200/50">
             Đã mất

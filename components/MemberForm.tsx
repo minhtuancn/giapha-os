@@ -64,6 +64,10 @@ export default function MemberForm({
     initialData?.is_in_law || false,
   );
 
+  const [birthOrder, setBirthOrder] = useState<number | "">(
+    initialData?.birth_order || "",
+  );
+
   const [avatarUrl, setAvatarUrl] = useState(initialData?.avatar_url || "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
@@ -162,6 +166,7 @@ export default function MemberForm({
         death_day: isDeceased && deathDay !== "" ? Number(deathDay) : null,
         is_deceased: isDeceased,
         is_in_law: isInLaw,
+        birth_order: birthOrder === "" ? null : Number(birthOrder),
         avatar_url: finalAvatarUrl || null,
         note: note || null,
       };
@@ -304,6 +309,25 @@ export default function MemberForm({
                 Là con Dâu hoặc con Rể
               </span>
             </label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+              Thứ tự sinh trong gia đình
+            </label>
+            <input
+              type="number"
+              min="1"
+              placeholder="Ví dụ: 1 (con trưởng), 2 (con thứ hai)..."
+              value={birthOrder}
+              onChange={(e) =>
+                setBirthOrder(e.target.value ? Number(e.target.value) : "")
+              }
+              className={inputClasses}
+            />
+            <p className="mt-1.5 text-xs text-stone-400 flex items-center gap-1">
+              <span>💡</span> Để trống nếu không rõ hoặc không có anh/chị/em
+            </p>
           </div>
 
           <div className="md:col-span-2 mt-2">

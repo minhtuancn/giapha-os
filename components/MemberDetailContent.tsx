@@ -115,6 +115,13 @@ export default function MemberDetailContent({
                       : "Khách"}
                 </span>
               )}
+              {person.birth_order != null && (
+                <span className="text-[10px] sm:text-xs font-sans font-bold rounded-md px-2 py-0.5 whitespace-nowrap shadow-xs border text-amber-700 bg-amber-50/60 border-amber-200/60 uppercase tracking-wider">
+                  {person.birth_order === 1
+                    ? "Con trưởng"
+                    : `Con thứ ${person.birth_order}`}
+                </span>
+              )}
             </h1>
 
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
